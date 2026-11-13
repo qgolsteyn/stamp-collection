@@ -50,7 +50,7 @@ test('requires a country and saves nothing without one', () => {
   addStamp('   ')
   expect(screen.getByRole('alert').textContent).toBe('Country is required.')
   expect(screen.getByText(/No stamps yet/)).toBeTruthy()
-  expect(JSON.parse(localStorage.getItem('stamps')!)).toEqual([])
+  expect(localStorage.getItem('stamps')).toBeNull()
 })
 
 test('rejects a year that is not 4 digits', () => {
@@ -91,6 +91,35 @@ test('edits a stamp in place', () => {
   expect(JSON.parse(localStorage.getItem('stamps')!)[0].country).toBe('Mexico')
 })
 
+test('edits face value: changes it, then clears it', () => {
+  render(<App />)
+  addStamp('Canada', '', '5', 'c')
+  const editFaceValue = (value: string) => {
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    const item = screen.getByRole('listitem')
+    fireEvent.change(within(item).getByLabelText('Face value'), { target: { value } })
+    fireEvent.click(within(item).getByRole('button', { name: 'Save' }))
+  }
+
+  editFaceValue('0.5')
+  expect(screen.getByText(/0\.5c/)).toBeTruthy()
+  expect(JSON.parse(localStorage.getItem('stamps')!)[0].faceValue).toBe(0.5)
+
+  editFaceValue('')
+  expect(JSON.parse(localStorage.getItem('stamps')!)[0].faceValue).toBeUndefined()
+})
+
+test('rejects an invalid face value when editing', () => {
+  render(<App />)
+  addStamp('Canada', '', '5', 'c')
+  fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+  const item = screen.getByRole('listitem')
+  fireEvent.change(within(item).getByLabelText('Face value'), { target: { value: '-1' } })
+  fireEvent.click(within(item).getByRole('button', { name: 'Save' }))
+  expect(within(item).getByRole('alert').textContent).toBe('Face value must be a number of 0 or more.')
+  expect(JSON.parse(localStorage.getItem('stamps')!)[0].faceValue).toBe(5)
+})
+
 test('deletes a stamp after confirmation', () => {
   render(<App />)
   addStamp('Canada')
@@ -109,4 +138,6 @@ test('starts empty when localStorage is corrupt', () => {
   localStorage.setItem('stamps', '{not json')
   render(<App />)
   expect(screen.getByText(/No stamps yet/)).toBeTruthy()
+  // Loading must not overwrite what is stored.
+  expect(localStorage.getItem('stamps')).toBe('{not json')
 })

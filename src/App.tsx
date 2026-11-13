@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import StampForm from './StampForm'
 import { createStamp, formatFaceValue, loadStamps, saveStamps, sortNewestFirst, type Stamp } from './stamps'
 import './App.css'
@@ -7,11 +7,15 @@ export default function App() {
   const [stamps, setStamps] = useState<Stamp[]>(loadStamps)
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  useEffect(() => saveStamps(stamps), [stamps])
+  // Save only on user changes, so loading never overwrites what is stored.
+  function commit(next: Stamp[]) {
+    setStamps(next)
+    saveStamps(next)
+  }
 
   function remove(stamp: Stamp) {
     if (!window.confirm(`Delete the ${stamp.country} stamp?`)) return
-    setStamps((all) => all.filter((s) => s.id !== stamp.id))
+    commit(stamps.filter((s) => s.id !== stamp.id))
     if (editingId === stamp.id) setEditingId(null)
   }
 
@@ -19,7 +23,7 @@ export default function App() {
     <main>
       <h1>Stamps</h1>
       <h2>Add a stamp</h2>
-      <StampForm submitLabel="Add stamp" onSubmit={(input) => setStamps((all) => [...all, createStamp(input)])} />
+      <StampForm submitLabel="Add stamp" onSubmit={(input) => commit([...stamps, createStamp(input)])} />
 
       <h2>Collection</h2>
       {stamps.length === 0 ? (
@@ -33,7 +37,7 @@ export default function App() {
                   initial={stamp}
                   submitLabel="Save"
                   onSubmit={(input) => {
-                    setStamps((all) => all.map((s) => (s.id === stamp.id ? { ...s, ...input } : s)))
+                    commit(stamps.map((s) => (s.id === stamp.id ? { ...s, ...input } : s)))
                     setEditingId(null)
                   }}
                   onCancel={() => setEditingId(null)}

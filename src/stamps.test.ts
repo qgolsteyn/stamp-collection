@@ -20,7 +20,7 @@ test.each(['not json{', '{"a":1}', 'null', '42'])('returns an empty list for cor
 
 test('drops malformed entries and keeps valid ones', () => {
   const stamp = createStamp({ country: 'France', condition: 'used' })
-  localStorage.setItem('stamps', JSON.stringify([stamp, { id: 1 }, null, { ...stamp, condition: 'shiny' }, { ...stamp, faceValue: '5' }]))
+  localStorage.setItem('stamps', JSON.stringify([stamp, { id: 1 }, null, { ...stamp, condition: 'shiny' }, { ...stamp, faceValue: '5' }, { ...stamp, faceValue: -3 }, { ...stamp, year: '1967' }, { ...stamp, currency: 5 }, { ...stamp, notes: {} }]))
   expect(loadStamps()).toEqual([stamp])
 })
 

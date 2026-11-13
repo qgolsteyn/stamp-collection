@@ -24,7 +24,10 @@ function isStamp(value: unknown): value is Stamp {
     typeof s.id === 'string' &&
     typeof s.country === 'string' &&
     typeof s.createdAt === 'string' &&
-    (s.faceValue === undefined || typeof s.faceValue === 'number') &&
+    (s.year === undefined || typeof s.year === 'number') &&
+    (s.faceValue === undefined || (typeof s.faceValue === 'number' && s.faceValue >= 0)) &&
+    (s.currency === undefined || typeof s.currency === 'string') &&
+    (s.notes === undefined || typeof s.notes === 'string') &&
     CONDITIONS.includes(s.condition)
   )
 }
