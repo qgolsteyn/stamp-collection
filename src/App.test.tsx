@@ -19,6 +19,7 @@ function addStamp(country: string, year = '', faceValue = '', currency = '') {
 
 test('shows the empty state', () => {
   render(<App />)
+  expect(screen.getByRole('heading', { level: 1, name: 'The Stamp Collection' })).toBeTruthy()
   expect(screen.getByText(/No stamps yet/)).toBeTruthy()
 })
 

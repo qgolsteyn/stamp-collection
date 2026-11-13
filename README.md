@@ -1,4 +1,4 @@
-# stamp-collection
+# The Stamp Collection
 
 Catalog your stamp collection in the browser. Vite + React + TypeScript.
 Local-only: no backend, no accounts. Stamps are saved in `localStorage` under the key `stamps`.

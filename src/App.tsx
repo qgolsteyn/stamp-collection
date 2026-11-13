@@ -21,7 +21,7 @@ export default function App() {
 
   return (
     <main>
-      <h1>Stamps</h1>
+      <h1>The Stamp Collection</h1>
       <h2>Add a stamp</h2>
       <StampForm submitLabel="Add stamp" onSubmit={(input) => commit([...stamps, createStamp(input)])} />
 
