@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import StampForm from './StampForm'
-import { createStamp, loadStamps, saveStamps, sortNewestFirst, type Stamp } from './stamps'
+import { createStamp, formatFaceValue, loadStamps, saveStamps, sortNewestFirst, type Stamp } from './stamps'
 import './App.css'
 
 export default function App() {
@@ -41,7 +41,7 @@ export default function App() {
               ) : (
                 <>
                   <span>
-                    <strong>{stamp.country}</strong> · {stamp.year ?? '—'} · {stamp.denomination ?? '—'} · {stamp.condition}
+                    <strong>{stamp.country}</strong> · {stamp.year ?? '—'} · {formatFaceValue(stamp)} · {stamp.condition}
                   </span>
                   <button type="button" onClick={() => setEditingId(stamp.id)}>
                     Edit

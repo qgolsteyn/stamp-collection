@@ -11,7 +11,8 @@ type Props = {
 export default function StampForm({ initial, submitLabel, onSubmit, onCancel }: Props) {
   const [country, setCountry] = useState(initial?.country ?? '')
   const [year, setYear] = useState(initial?.year?.toString() ?? '')
-  const [denomination, setDenomination] = useState(initial?.denomination ?? '')
+  const [faceValue, setFaceValue] = useState(initial?.faceValue?.toString() ?? '')
+  const [currency, setCurrency] = useState(initial?.currency ?? '')
   const [condition, setCondition] = useState<Condition>(initial?.condition ?? 'mint')
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [error, setError] = useState('')
@@ -19,20 +20,26 @@ export default function StampForm({ initial, submitLabel, onSubmit, onCancel }: 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     const trimmedYear = year.trim()
+    const trimmedFaceValue = faceValue.trim()
     if (!country.trim()) return setError('Country is required.')
     if (trimmedYear && !/^\d{4}$/.test(trimmedYear)) return setError('Year must be a 4-digit number.')
+    // Digits with an optional decimal part; rejects negatives, exponents and hex that Number() would accept.
+    if (trimmedFaceValue && !/^(\d+\.?\d*|\.\d+)$/.test(trimmedFaceValue))
+      return setError('Face value must be a number of 0 or more.')
     setError('')
     onSubmit({
       country: country.trim(),
       year: trimmedYear ? Number(trimmedYear) : undefined,
-      denomination: denomination.trim() || undefined,
+      faceValue: trimmedFaceValue ? Number(trimmedFaceValue) : undefined,
+      currency: currency.trim() || undefined,
       condition,
       notes: notes.trim() || undefined,
     })
     if (!initial) {
       setCountry('')
       setYear('')
-      setDenomination('')
+      setFaceValue('')
+      setCurrency('')
       setCondition('mint')
       setNotes('')
     }
@@ -49,8 +56,12 @@ export default function StampForm({ initial, submitLabel, onSubmit, onCancel }: 
         <input value={year} onChange={(e) => setYear(e.target.value)} inputMode="numeric" />
       </label>
       <label>
-        Denomination
-        <input value={denomination} onChange={(e) => setDenomination(e.target.value)} placeholder="5c" />
+        Face value
+        <input value={faceValue} onChange={(e) => setFaceValue(e.target.value)} inputMode="decimal" placeholder="5" />
+      </label>
+      <label>
+        Currency
+        <input value={currency} onChange={(e) => setCurrency(e.target.value)} placeholder="c" />
       </label>
       <label>
         Condition

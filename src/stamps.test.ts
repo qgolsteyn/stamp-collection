@@ -1,10 +1,10 @@
 import { beforeEach, expect, test } from 'vitest'
-import { createStamp, loadStamps, saveStamps, sortNewestFirst } from './stamps'
+import { createStamp, formatFaceValue, loadStamps, saveStamps, sortNewestFirst } from './stamps'
 
 beforeEach(() => localStorage.clear())
 
 test('round-trips stamps through localStorage', () => {
-  const stamp = createStamp({ country: 'Canada', year: 1967, denomination: '5c', condition: 'mint' })
+  const stamp = createStamp({ country: 'Canada', year: 1967, faceValue: 0.5, currency: 'USD', condition: 'mint' })
   saveStamps([stamp])
   expect(loadStamps()).toEqual([stamp])
 })
@@ -20,8 +20,14 @@ test.each(['not json{', '{"a":1}', 'null', '42'])('returns an empty list for cor
 
 test('drops malformed entries and keeps valid ones', () => {
   const stamp = createStamp({ country: 'France', condition: 'used' })
-  localStorage.setItem('stamps', JSON.stringify([stamp, { id: 1 }, null, { ...stamp, condition: 'shiny' }]))
+  localStorage.setItem('stamps', JSON.stringify([stamp, { id: 1 }, null, { ...stamp, condition: 'shiny' }, { ...stamp, faceValue: '5' }]))
   expect(loadStamps()).toEqual([stamp])
+})
+
+test('formats face value with currency', () => {
+  expect(formatFaceValue({ faceValue: 5, currency: 'c' })).toBe('5c')
+  expect(formatFaceValue({ faceValue: 0.5 })).toBe('0.5')
+  expect(formatFaceValue({ currency: 'c' })).toBe('—')
 })
 
 test('sorts newest first', () => {

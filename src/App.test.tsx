@@ -8,10 +8,12 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-function addStamp(country: string, year = '') {
+function addStamp(country: string, year = '', faceValue = '', currency = '') {
   const form = screen.getByRole('button', { name: 'Add stamp' }).closest('form')!
   fireEvent.change(within(form).getByLabelText('Country'), { target: { value: country } })
   fireEvent.change(within(form).getByLabelText('Year'), { target: { value: year } })
+  fireEvent.change(within(form).getByLabelText('Face value'), { target: { value: faceValue } })
+  fireEvent.change(within(form).getByLabelText('Currency'), { target: { value: currency } })
   fireEvent.click(within(form).getByRole('button', { name: 'Add stamp' }))
 }
 
@@ -55,6 +57,23 @@ test('rejects a year that is not 4 digits', () => {
   render(<App />)
   addStamp('Canada', '67')
   expect(screen.getByRole('alert').textContent).toBe('Year must be a 4-digit number.')
+  expect(screen.getByText(/No stamps yet/)).toBeTruthy()
+})
+
+test('stores face value as a number and shows it with its currency', () => {
+  render(<App />)
+  addStamp('Canada', '', '5', 'c')
+  expect(screen.getByText(/5c/)).toBeTruthy()
+  expect(JSON.parse(localStorage.getItem('stamps')!)[0]).toMatchObject({ faceValue: 5, currency: 'c' })
+
+  addStamp('Japan', '', '0.5', 'USD')
+  expect(JSON.parse(localStorage.getItem('stamps')!)[1].faceValue).toBe(0.5)
+})
+
+test.each(['abc', '-1', '1e3'])('rejects face value %s', (faceValue) => {
+  render(<App />)
+  addStamp('Canada', '', faceValue)
+  expect(screen.getByRole('alert').textContent).toBe('Face value must be a number of 0 or more.')
   expect(screen.getByText(/No stamps yet/)).toBeTruthy()
 })
 

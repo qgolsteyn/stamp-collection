@@ -5,7 +5,8 @@ export type Stamp = {
   id: string
   country: string
   year?: number
-  denomination?: string
+  faceValue?: number
+  currency?: string
   condition: Condition
   notes?: string
   createdAt: string
@@ -23,6 +24,7 @@ function isStamp(value: unknown): value is Stamp {
     typeof s.id === 'string' &&
     typeof s.country === 'string' &&
     typeof s.createdAt === 'string' &&
+    (s.faceValue === undefined || typeof s.faceValue === 'number') &&
     CONDITIONS.includes(s.condition)
   )
 }
@@ -43,6 +45,11 @@ export function saveStamps(stamps: Stamp[]): void {
 
 export function createStamp(input: StampInput): Stamp {
   return { ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString() }
+}
+
+/** Face value with its currency, e.g. "5c", or an em dash when unknown. */
+export function formatFaceValue({ faceValue, currency }: Pick<Stamp, 'faceValue' | 'currency'>): string {
+  return faceValue === undefined ? '—' : `${faceValue}${currency ?? ''}`
 }
 
 export function sortNewestFirst(stamps: Stamp[]): Stamp[] {
